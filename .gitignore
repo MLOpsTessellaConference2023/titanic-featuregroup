@@ -87,3 +87,6 @@ bin/
 
 # Mypy cache
 .mypy_cache/
+
+# venv
+venv
