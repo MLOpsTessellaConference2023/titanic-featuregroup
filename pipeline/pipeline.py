@@ -28,6 +28,10 @@ steps = [
         step_type=StepTypeEnum.PROCESSING,
     ),
     Step(
+        name="FeatureValidation",
+        step_type=StepTypeEnum.PROCESSING,
+    ),
+    Step(
         name="IngestFeatureGroup",
         step_type=StepTypeEnum.PROCESSING,
     ),
