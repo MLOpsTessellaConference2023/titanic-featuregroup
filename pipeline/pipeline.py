@@ -54,9 +54,9 @@ script_processor = FrameworkProcessor(
 
 from sagemaker.processing import ProcessingInput, ProcessingOutput
 
-base_path = 'mnt/c/Users/jose.pena/PycharmProjects/Conference2023MLOps/titanic-featuregroup'
+base_path = 'titanic-featuregroup'
 
-input_data = r'file:///mnt/c/Users/jose.pena/PycharmProjects/Conference2023MLOps/titanic-featuregroup/bin/titanic.csv'
+input_data = r'file:///bin/titanic.csv'
 
 inputs = [ProcessingInput(source=input_data, destination="/opt/ml/processing/input")]
 outputs = [

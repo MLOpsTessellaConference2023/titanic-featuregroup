@@ -1,40 +1,46 @@
 # -*- coding: utf-8 -*-
 """
-Pipeline
-========
-
-Script to ...
-
-Notes
------
-
 Date: 01/2023
 Author: (C) Capgemini Engineering - Antonio Galan, Jose Pena
+
+Data Wrangling
+==============
+
+Step to wrangle the data, including:
+- Cleaning the data
+- Format columns
+- Drop irrelevant columns or rows
+- Format values
+...
 """
-import pandas
-from argparse import ArgumentParser
+# Import local scripts in AWS
+# import sys # TODO
+# sys.path.insert(0, '/opt/ml/processing/code')
+
+from pandas import DataFrame
+
+from utils import parse_args, data_args
 
 
-def wrangle(raw_data: pandas.DataFrame):
-    '''
-    Clean and normalize data
+@data_args
+def wrangle(data: DataFrame) -> DataFrame:
+    """
+    Clean, select and format data
 
     Params:
-        - raw_data (pandas.DataFrame): The original dataset
+        - data (pandas.DataFrame): The original dataset
 
     Return:
         - pandas.DataFrame: The processed dataset
-    '''
-
-    data = raw_data.copy()
-
-    # Columns names normalization
-    data.columns = data.columns.str.lower()
+    """
+    # Columns names formatting
+    data.columns = [str(col).lower().strip().replace(' ', '_') for col in data.columns.tolist()]
 
     # Useless columns for our purpose
     data = data.drop(
         ['cabin', 'ticket', 'name'],
-    axis=1)
+        axis=1
+    )
 
     # Identify target column
     data = data.rename(columns={'survived': 'target'})
@@ -43,8 +49,10 @@ def wrangle(raw_data: pandas.DataFrame):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument("--train-test-split-ratio", type=float, default=0.3)
-    args, _ = parser.parse_known_args()
-
-    print("Received arguments {}".format(args))
+    # If you want to run it locally in your IDE, create the folder bin, and download the data in:
+    # https://www.kaggle.com/datasets/heptapod/titanic/download?datasetVersionNumber=1
+    # Then use the following parameters to run it:
+    #   --data-path="../bin" --step-name="Data Wrangling" --output-file="titanic.csv"
+    #   --input-file="wrangled_data.csv"
+    args = parse_args()
+    wrangle(args=args)

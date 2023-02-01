@@ -1,5 +1,8 @@
 numpy==1.24.1
+scipy==1.10.0
 pandas==1.5.3
 scikit-learn==1.2.1
 great-expectations==0.15.46
 sagemaker==2.131.0
+hypothesis==6.65.2
+pandera[strategies,hypothesis]==0.13.4

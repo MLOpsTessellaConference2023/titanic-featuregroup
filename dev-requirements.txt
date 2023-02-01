@@ -1,9 +1,7 @@
-# external requirements
-# click
-# Sphinx==6.0.0
 coverage
 flake8
+mypy==0.991
 python-dotenv>=0.5.1
-sagemaker[local]==2.131.0
-boto3==1.26.28
+# sagemaker[local]==2.131.0
+# boto3==1.26.28
 urllib3==1.26.14

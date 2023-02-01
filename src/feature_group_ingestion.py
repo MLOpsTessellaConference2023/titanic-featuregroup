@@ -13,7 +13,7 @@ Version: 1.0
 Author: (C) Capgemini Engineering - Antonio Galan, Jose Pena
 Website: www.capgemini.com
 """
-import sys  # standard library
+import sys
 import argparse
 
 import multiprocessing
@@ -48,6 +48,7 @@ def cast_object_to_string(data_frame):
 def format_column_names(data: pandas.DataFrame):
     data.rename(columns=lambda x: x.replace(' ', '_').replace('.', '')[:62], inplace=True)
     return data
+
 
 try:
     import sagemaker
@@ -103,6 +104,7 @@ def main(args):
     Args:
         args (argparse.arguments):
             --data-path
+            --featuregroup-name
     """
 
     # -------------- Args --------------
@@ -118,7 +120,7 @@ def main(args):
 
     parser.add_argument(
         "-f",
-        "--featuregroup_name",
+        "--featuregroup-name",
         dest="fg_name",
         type=str,
         help="The feature group name. (Mandatory)"
