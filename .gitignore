@@ -92,3 +92,4 @@ bin/
 venv
 lvenv
 .aws
+.hypothesis

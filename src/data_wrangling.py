@@ -42,9 +42,6 @@ def wrangle(data: DataFrame) -> DataFrame:
         axis=1
     )
 
-    # Identify target column
-    data = data.rename(columns={'survived': 'target'})
-
     return data
 
 

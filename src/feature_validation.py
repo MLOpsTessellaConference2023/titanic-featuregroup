@@ -23,7 +23,7 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
     # PassengerId,target,pclass,sex,age,sibsp,parch,fare,embarked,hours_traveling,alone
     schema = pandera.DataFrameSchema(
         {
-            "target": Column(
+            "survived": Column(
                 "int64",
                 [
                     Check.isin([0,1]),
