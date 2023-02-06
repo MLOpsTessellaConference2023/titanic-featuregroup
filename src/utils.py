@@ -12,6 +12,9 @@ Date: 01/2023
 Author: (C) Capgemini Engineering - Antonio Galan, Jose Pena
 """
 import argparse
+import json
+
+from datetime import datetime
 from time import perf_counter
 
 import pandas
@@ -72,7 +75,13 @@ def data_args(data_step):
                                sep=','
                                )
 
+        if data.empty:
+            raise Exception(f'Input Dataframe is empty.')
+
         data = data_step(data=data)
+
+        if data.empty:
+            raise Exception(f'Dataframe as result is empty.')
 
         if args.output_file is not None:
             data.to_csv(path_or_buf=f"{args.data_path}/{args.output_file}",
@@ -80,7 +89,21 @@ def data_args(data_step):
                         index=True)
 
         total_time = perf_counter() - starting_time
+
         print(f"Finished {args.step_name} Step after {total_time:.4f} seconds.\n\n")
+
+        dw_summary = {'date': datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M:%S"),
+                      'n_samples': data.shape[0],
+                      'n_features': data.shape[1],
+                      '%nan_values': round((data.isna().sum().sum() / (data.shape[0] * data.shape[1])) * 100, 2),
+                      'prop_target': dict(
+                          round(data['survived'].value_counts(normalize=True, dropna=False), 3)),
+                      'time': total_time,
+                      'features': data.columns.tolist()
+                      }
+
+        print(f'{"_" * 20} Summary {"_" * 20}\n\n{json.dumps(dw_summary, indent=4)}')
+
         return data_step
 
     return execute

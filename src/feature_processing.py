@@ -38,11 +38,12 @@ def process_features(data: pandas.DataFrame):
     }).astype(float)
 
     # Transform features
-    data['age'] = pandas.cut(
+    data['age_group'] = pandas.cut(
         data['age'],
         [0, 3, 10, 18, 30, 50, 70, 100],
         labels=['babies', 'children', 'teenagers', 'young', 'adults', 'seniors', 'elders']
     )
+    data = data.drop(['age'], axis=1)
 
     # Combine features
     data['alone'] = numpy.where((data['sibsp'] == 0) & (data['parch'] == 0), 'yes', 'no')

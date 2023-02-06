@@ -16,7 +16,7 @@ Step to wrangle the data, including:
 # Import local scripts in AWS
 # import sys # TODO
 # sys.path.insert(0, '/opt/ml/processing/code')
-
+import numpy
 from pandas import DataFrame
 
 from utils import parse_args, data_args
@@ -41,6 +41,10 @@ def wrangle(data: DataFrame) -> DataFrame:
         ['cabin', 'ticket', 'name'],
         axis=1
     )
+
+    # Normalize nans
+    data = data.replace(['nan', '', ' ', None, 'NaN'], numpy.nan)
+
 
     return data
 
