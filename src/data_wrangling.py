@@ -53,7 +53,7 @@ if __name__ == '__main__':
     # If you want to run it locally in your IDE, create the folder bin, and download the data in:
     # https://www.kaggle.com/datasets/heptapod/titanic/download?datasetVersionNumber=1
     # Then use the following parameters to run it:
-    #   --data-path="../bin" --step-name="Data Wrangling" --output-file="titanic.csv"
-    #   --input-file="wrangled_data.csv"
+    #   --data-path="../bin" --step-name="Data Wrangling" --output-file="wrangled_data.csv"
+    #   --input-file="titanic.csv"
     args = parse_args()
     wrangle(args=args)

@@ -11,9 +11,8 @@ Step to validate the values of the features to check data consistency, enforce s
 """
 import pandas
 import pandera
-import numpy
 
-from pandera import Column, Check, Hypothesis
+from pandera import Column, Check
 from utils import data_args, parse_args
 
 
@@ -74,7 +73,12 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
                                       nullable=True
             )
 
-        }
+        },
+        checks=[Check(
+            lambda dataframe: all('.' not in c and ' ' not in c and len(c) <= 62 for c in dataframe.columns),
+            name='Feature Group requirements',
+            error='Column name does not fit feature group requirements'
+        )]
     )
 
     # Executing feature validation
@@ -84,6 +88,6 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
 
 if __name__ == '__main__':
     # If you want to run it locally in your IDE, create the folder bin and use the following parameters:
-    #   --data-path="../bin" --step-name="Features Processing" --input-file="processed_features.csv"
+    #   --data-path="../bin" --step-name="Features Validation" --input-file="processed_features.csv"
     args = parse_args()
     validate_features(args=args)

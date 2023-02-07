@@ -45,11 +45,6 @@ def cast_object_to_string(data_frame):
     return data_frame
 
 
-def format_column_names(data: pandas.DataFrame):
-    data.rename(columns=lambda x: x.replace(' ', '_').replace('.', '')[:62], inplace=True)
-    return data
-
-
 try:
     import sagemaker
 
@@ -87,9 +82,6 @@ def check_fg_prep(feature_group: pandas.DataFrame, record_identifier_name: str =
 
         feature_group[event_time_feature_name] = pandas.to_datetime('now').strftime('%Y-%m-%dT%H:%M:%SZ')
         feature_group[event_time_feature_name] = feature_group[event_time_feature_name].astype(str).astype('string')
-
-    # Short Column names and no spaces
-    feature_group = format_column_names(feature_group)
 
     # HardCast objects to string type
     feature_group = cast_object_to_string(feature_group)
