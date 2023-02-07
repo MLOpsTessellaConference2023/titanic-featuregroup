@@ -28,7 +28,7 @@ from sagemaker.feature_store.feature_group import FeatureGroup
 
 def get_logger():
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)  # mod INFO
+    logger.setLevel(logging.INFO)  # mod INFO test
     logger.addHandler(logging.StreamHandler())
     logger.propagate = False
     return logger
