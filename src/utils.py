@@ -76,13 +76,13 @@ def data_args(data_step):
                                )
 
         if data.empty:
-            raise Exception(f'Input Dataframe is empty.')
+            raise Exception('Input Dataframe is empty.')
 
         data = data_step(data=data)
 
         if args.output_file is not None:
             if data.empty:
-                raise Exception(f'Dataframe as result is empty.')
+                raise Exception('Dataframe as result is empty.')
 
             data.to_csv(path_or_buf=f"{args.data_path}/{args.output_file}",
                         sep=',',

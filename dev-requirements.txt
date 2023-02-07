@@ -1,6 +1,7 @@
 coverage
 flake8
-mypy==0.991
+mypy
+pylint
 python-dotenv>=0.5.1
 # sagemaker[local]==2.131.0
 # boto3==1.26.28

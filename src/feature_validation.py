@@ -34,7 +34,7 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
             ]),
             # Values must be 1, 2 or 3 and column must be of int type
             "pclass": Column("int64", [
-                Check.in_range(0,3)
+                Check.in_range(0, 3)
             ]),
             # age_group column could have the values in the list
             "age_group": Column(dtype="str",
@@ -42,8 +42,7 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
                                     Check.isin(['baby', 'child', 'teenager', 'young adult', 'adult',
                                                 'mature adult', 'senior'
                                                 ])],
-                                nullable=True
-            ),
+                                nullable=True),
             # sibsp column could have the values in range(0,8) but not equals to 6 or 7
             "sibsp": Column("int64", [
                 Check.notin([6, 7]),
@@ -66,12 +65,12 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
             "embarked": Column(dtype="str",
                                checks=[Check.isin(['S', 'C', 'Q'])],
                                nullable=True
-            ),
+                               ),
             #
             "hours_traveling": Column(dtype="float64",
                                       checks=[Check.in_range(80.0, 110.0)],
                                       nullable=True
-            )
+                                      )
 
         },
         checks=[Check(
