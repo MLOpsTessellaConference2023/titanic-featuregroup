@@ -41,7 +41,7 @@ def process_features(data: pandas.DataFrame):
     data['age_group'] = pandas.cut(
         data['age'],
         [0, 3, 10, 18, 30, 50, 70, 100],
-        labels=['babies', 'children', 'teenagers', 'young', 'adults', 'seniors', 'elders']
+        labels=['baby', 'child', 'teenager', 'young adult', 'adult', 'mature adult', 'senior']
     )
     data = data.drop(['age'], axis=1)
 

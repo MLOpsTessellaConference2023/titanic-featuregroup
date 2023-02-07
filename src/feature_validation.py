@@ -39,8 +39,8 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
             # age_group column could have the values in the list
             "age_group": Column(dtype="str",
                                 checks=[
-                                    Check.isin(['young', 'adults', 'teenagers', 'seniors', 'children',
-                                                'babies', 'elders'
+                                    Check.isin(['baby', 'child', 'teenager', 'young adult', 'adult',
+                                                'mature adult', 'senior'
                                                 ])],
                                 nullable=True
             ),

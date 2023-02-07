@@ -45,7 +45,6 @@ def wrangle(data: DataFrame) -> DataFrame:
     # Normalize nans
     data = data.replace(['nan', '', ' ', None, 'NaN'], numpy.nan)
 
-
     return data
 
 
