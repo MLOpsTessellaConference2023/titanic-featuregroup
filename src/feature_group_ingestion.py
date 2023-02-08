@@ -86,6 +86,7 @@ def check_fg_prep(features: pandas.DataFrame,
 
     return features
 
+
 @data_args
 def ingest(data: pandas.DataFrame) -> None:
     """
@@ -105,7 +106,7 @@ def ingest(data: pandas.DataFrame) -> None:
 
     print(f'Ingesting rows into Feature Group: {args.fg_name}')
     feature_group = FeatureGroup(name=args.fg_name,
-                      sagemaker_session=sagemaker_session)
+                                 sagemaker_session=sagemaker_session)
 
     fg_description = feature_group.describe()
 

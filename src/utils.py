@@ -20,7 +20,8 @@ from time import perf_counter
 import pandas
 
 
-def parse_args(message: str="", return_parser: bool=False) -> argparse.Namespace | argparse.ArgumentParser:
+def parse_args(message: str = "",
+               return_parser: bool = False) -> argparse.Namespace | argparse.ArgumentParser:
     """
     Method to parse the arguments need to execute the pipeline step
 
