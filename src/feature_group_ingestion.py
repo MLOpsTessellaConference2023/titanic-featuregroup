@@ -1,47 +1,43 @@
 # -*- coding: utf-8 -*-
 """
-Pipeline
-========
-
-Script to ...
-
-Notes
------
-
 Date: 01/2023
 Version: 1.0
 Author: (C) Capgemini Engineering - Antonio Galan, Jose Pena
 Website: www.capgemini.com
+
+
+Feature Group Ingestion
+=======================
+
+Script to ingest a pandas.DataFrame into a Feature Group
+
 """
 import sys
-import argparse
-
-import multiprocessing
-from pathlib import Path
-
 import logging
+import multiprocessing
 
 import boto3
 import pandas
 from sagemaker.feature_store.feature_group import FeatureGroup
 
+from utils import data_args, parse_args
+
 
 def get_logger():
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)  # mod INFO test
-    logger.addHandler(logging.StreamHandler())
-    logger.propagate = False
-    return logger
+    _logger = logging.getLogger(__name__)
+    _logger.setLevel(logging.INFO)  # mod INFO test
+    _logger.addHandler(logging.StreamHandler())
+    _logger.propagate = False
+    return _logger
 
 
 logger = get_logger()
 SEP = ';'
 
 
-def cast_object_to_string(data_frame):
-    for label in data_frame.columns:
-        if data_frame.dtypes[label] == "object":
-            data_frame[label] = data_frame[label].astype("str").astype("string")
+def cast_object_to_string(data_frame: pandas.DataFrame):
+    obj_cols = data_frame.select_dtypes(["object"]).columns.tolist()
+    data_frame[obj_cols] = data_frame[obj_cols].astype("str").astype("string")
     return data_frame
 
 
@@ -58,11 +54,13 @@ except ModuleNotFoundError:
                           stderr=subprocess.STDOUT)
 
 
-def check_fg_prep(feature_group: pandas.DataFrame, record_identifier_name: str = 'TransactionID',
+def check_fg_prep(features: pandas.DataFrame,
+                  record_identifier_name: str = 'TransactionID',
                   event_time_feature_name: str = 'EventTime'):
-    if record_identifier_name in feature_group.columns:
-        lg_fg = len(feature_group[record_identifier_name])
-        lg_uniq = len(feature_group[record_identifier_name].unique())
+
+    if record_identifier_name in features.columns:
+        lg_fg = len(features[record_identifier_name])
+        lg_uniq = len(features[record_identifier_name].unique())
 
         if lg_fg != lg_uniq:
             exc = Exception(f'\tColumn {record_identifier_name} for feature group has {abs(lg_fg - lg_uniq)}')
@@ -73,42 +71,57 @@ def check_fg_prep(feature_group: pandas.DataFrame, record_identifier_name: str =
         logger.warning(
             str(f'RecordIdentifier column with name {record_identifier_name} doesnt appear in feature group.' +
                 f'\nCreating column {record_identifier_name} with values from dataframe index.'))
-        feature_group[record_identifier_name] = feature_group.index
+        features[record_identifier_name] = features.index
 
-    if event_time_feature_name not in feature_group.columns:
+    if event_time_feature_name not in features.columns:
         from datetime import datetime
         logger.warning(str(f'EventTime column with name {event_time_feature_name} doesnt appear in feature group.' +
                            f'\nCreating column {event_time_feature_name} with values from now: {datetime.now()}'))
 
-        feature_group[event_time_feature_name] = pandas.to_datetime('now').strftime('%Y-%m-%dT%H:%M:%SZ')
-        feature_group[event_time_feature_name] = feature_group[event_time_feature_name].astype(str).astype('string')
+        features[event_time_feature_name] = pandas.to_datetime('now').strftime('%Y-%m-%dT%H:%M:%SZ')
+        features[event_time_feature_name] = features[event_time_feature_name].astype(str).astype('string')
 
     # HardCast objects to string type
-    feature_group = cast_object_to_string(feature_group)
+    features = cast_object_to_string(features)
 
-    return feature_group
+    return features
 
-
-def main(args):
+@data_args
+def ingest(data: pandas.DataFrame) -> None:
     """
     Desc.
 
     Args:
-        args (argparse.arguments):
-            --data-path
-            --featuregroup-name
+        data (pandas.DataFrame):
     """
+    boto_session = boto3.session.Session(region_name=args.region)
+    sagemaker_session = sagemaker.Session(boto_session=boto_session)
+
+    n_workers = round(len(data) / 5e4)
+    print(f"Number of workers: {n_workers} for a total number of rows of {len(data)}")
+
+    n_processes = multiprocessing.cpu_count()
+    print(f"Number of processes: {n_processes} for a CPU count of {n_processes}")
+
+    print(f'Ingesting rows into Feature Group: {args.fg_name}')
+    feature_group = FeatureGroup(name=args.fg_name,
+                      sagemaker_session=sagemaker_session)
+
+    fg_description = feature_group.describe()
+
+    data = check_fg_prep(features=data,
+                         record_identifier_name=fg_description['RecordIdentifierFeatureName'],
+                         event_time_feature_name=fg_description['EventTimeFeatureName'])
+
+    feature_group.ingest(data_frame=data, max_workers=n_workers, max_processes=n_processes, wait=True)
+
+
+if __name__ == "__main__":
 
     # -------------- Args --------------
 
-    parser = argparse.ArgumentParser("Gets arguments for data cleaning")
-
-    parser.add_argument(
-        "--data-path",
-        dest="path",
-        type=str,
-        help="The path to load data. (Mandatory)"
-    )
+    parser = parse_args(message="Gets arguments for data cleaning",
+                        return_parser=True)
 
     parser.add_argument(
         "-f",
@@ -127,45 +140,14 @@ def main(args):
         default='eu-west-1'
     )
 
-    args = parser.parse_args(args)
+    args, _ = parser.parse_known_args()
 
     # path and file_name are mandatory arguments
-    if args.path is None:
+    if args.path is None or args.fg_name is None or \
+            args.input_file is None:
         parser.print_help()
         sys.exit(2)
 
-    if args.fg_name is None:
-        parser.print_help()
-        sys.exit(2)
+    print(f"Received arguments:\n{args}.\n")
 
-    # -------------- logic --------------
-
-    data_path = Path(args.path)
-
-    files_to_ingest = [file for file in data_path.glob('*.csv')]
-
-    for file in files_to_ingest:
-        # load data in ram
-        logger.info(f"Data reading from {file}")
-        df = pandas.read_csv(filepath_or_buffer=file, sep=SEP, header=0, low_memory=False)
-
-        boto_session = boto3.session.Session(region_name=args.region)
-        sagemaker_session = sagemaker.Session(boto_session=boto_session)
-
-        n_workers = round(len(df) / 5e4)
-        logger.info(f"Number of workers: {n_workers} for a total number of rows of {len(df)}")
-        n_processes = multiprocessing.cpu_count()
-        logger.info(f"Number of processes: {n_processes} for a CPU count of {n_processes}")
-
-        logger.info(f'Ingesting rows into Feature Group: {args.fg_name}')
-        fg = FeatureGroup(name=args.fg_name, sagemaker_session=sagemaker_session)
-
-        fg_description = fg.describe()
-
-        df = check_fg_prep(feature_group=df, record_identifier_name=fg_description['RecordIdentifierFeatureName'],
-                           event_time_feature_name=fg_description['EventTimeFeatureName'])
-        fg.ingest(data_frame=df, max_workers=n_workers, max_processes=n_processes, wait=True)
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
+    ingest(args=args)
