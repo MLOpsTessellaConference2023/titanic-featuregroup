@@ -16,8 +16,12 @@ import sys
 import logging
 import multiprocessing
 
+from datetime import datetime
+
 import boto3
 import pandas
+import sagemaker
+
 from sagemaker.feature_store.feature_group import FeatureGroup
 
 from utils import data_args, parse_args
@@ -35,23 +39,10 @@ logger = get_logger()
 SEP = ';'
 
 
-def cast_object_to_string(data_frame: pandas.DataFrame):
+def cast_object_to_string(data_frame: pandas.DataFrame) -> pandas.DataFrame:
     obj_cols = data_frame.select_dtypes(["object"]).columns.tolist()
     data_frame[obj_cols] = data_frame[obj_cols].astype("str").astype("string")
     return data_frame
-
-
-try:
-    import sagemaker
-
-except ModuleNotFoundError:
-    logger.warning('Package sagemaker not found, will proceed to be instaled by subprocess lib.')
-    # For installing sagemaker in the execution container if not installed
-    import subprocess
-
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'sagemaker'],
-                          stdout=subprocess.DEVNULL,
-                          stderr=subprocess.STDOUT)
 
 
 def check_fg_prep(features: pandas.DataFrame,
@@ -74,7 +65,6 @@ def check_fg_prep(features: pandas.DataFrame,
         features[record_identifier_name] = features.index
 
     if event_time_feature_name not in features.columns:
-        from datetime import datetime
         logger.warning(str(f'EventTime column with name {event_time_feature_name} doesnt appear in feature group.' +
                            f'\nCreating column {event_time_feature_name} with values from now: {datetime.now()}'))
 
