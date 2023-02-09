@@ -34,7 +34,7 @@ def wrangle(data: DataFrame) -> DataFrame:
         - pandas.DataFrame: The processed dataset
     """
     # Columns names formatting
-    data.columns = [str(col).lower().strip().replace(' ', '_') for col in data.columns.tolist()]
+    data.columns = [col.lower().strip() for col in data.columns]
 
     # Useless columns for our purpose
     data = data.drop(
