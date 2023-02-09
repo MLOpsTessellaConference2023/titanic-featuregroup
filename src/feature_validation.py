@@ -26,7 +26,8 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
     """
 
     schema = pandera.DataFrameSchema(
-        {
+        # Checks per column
+        columns={
             # Values defined in the list must appear in the column `survived`
             "survived": Column("int64", [
                 Check.unique_values_eq([0, 1])
@@ -76,10 +77,11 @@ def validate_features(data: pandas.DataFrame) -> pandas.DataFrame:
                                       )
 
         },
+        # Global checks for the entire dataframe
         checks=[Check(
             lambda dataframe: all('.' not in c and ' ' not in c and len(c) <= 62 for c in dataframe.columns),
-            name='Feature Group requirements',
-            error='Column name does not fit feature group requirements'
+            name='Feature Group column naming requirements',
+            error='Column name does not fit feature group naming requirements'
         )]
     )
 
