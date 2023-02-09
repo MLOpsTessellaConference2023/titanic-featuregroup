@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-Pipeline
-========
+Date: 01/2023
+Version: 1.0
+Author: (C) Capgemini Engineering - Antonio Galan, Jose Pena
+Website: www.capgemini.com
+
+Utils
+=====
 
 Script to ...
 
-Notes
------
-
-Date: 01/2023
-Author: (C) Capgemini Engineering - Antonio Galan, Jose Pena
 """
 import argparse
 import json
